@@ -29,7 +29,7 @@ func BuildBlock(data string, Prev []byte) *Block {
 
 // the first block doesn't have an address to point back to
 func Init() *Block {
-	return BuildBlock("THE BEGINNING :" + time.Now().Format("2006-01-02 15:04:05"), []byte{})
+	return BuildBlock("THE BEGINNING : " + time.Now().Format("2006-01-02 15:04:05"), []byte{})
 }
 
 func (b *Block) Encode() []byte {
