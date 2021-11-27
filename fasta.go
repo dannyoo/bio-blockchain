@@ -6,9 +6,9 @@ import (
     "os"
 )
 
-func readFasta() (label, seq string){
+func readFasta(file string) (label, seq string){
     // open file
-    f, err := os.Open("file.txt")
+    f, err := os.Open(file)
     if err != nil {
         log.Fatal(err)
     }

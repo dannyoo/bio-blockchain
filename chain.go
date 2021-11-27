@@ -3,7 +3,6 @@ package main
 import (
 	// you need to run 'go get github.com/dgraph-io/badger'
 	"fmt"
-
 	"github.com/dgraph-io/badger"
 )
 
@@ -33,12 +32,12 @@ func InitBlockChain() *BlockChain {
 	err = db.Update(func(txn *badger.Txn) error {
 		// "previousHash" stand for prev hash
 		if _, err := txn.Get([]byte("previousHash")); err == badger.ErrKeyNotFound {
-			fmt.Println("blockchain not found")
+			fmt.Println("Blockchain not found")
 			init := Init()
-			fmt.Println("init proved")
 			err = txn.Set(init.Hash, init.Encode())
 			ErrorHandle(err)
 			err = txn.Set([]byte("previousHash"), init.Hash)
+			fmt.Println("Began a New Blockchain")
 
 			prevHash = init.Hash
 

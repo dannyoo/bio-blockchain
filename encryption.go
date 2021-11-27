@@ -3,7 +3,9 @@ package main
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha256"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/gob"
 	"encoding/pem"
 	"fmt"
@@ -82,4 +84,12 @@ func saveToFile() {
 	}
 
 	pemfile.Close()
+}
+
+func RSA_OAEP_Encrypt(secretMessage string, key rsa.PublicKey) string {
+    label := []byte("OAEP Encrypted")
+    rng := rand.Reader
+    ciphertext, err := rsa.EncryptOAEP(sha256.New(), rng, &key, []byte(secretMessage), label)
+    ErrorHandle(err)
+    return base64.StdEncoding.EncodeToString(ciphertext)
 }
