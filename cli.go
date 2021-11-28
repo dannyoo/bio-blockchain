@@ -65,9 +65,7 @@ func (cli *CommandLine) addBlock(file string) {
 	label, seq := readFasta(file)
 	fastaData := label + " " + seq
 	encryptedData := RSA_OAEP_Encrypt(fastaData, cli.privateKey.PublicKey)
-	fmt.Println(encryptedData)
 	cli.blockchain.AddBlock(encryptedData)
-	fmt.Println("Added Block!")
 }
 
 func (cli *CommandLine) wallet() {
@@ -88,9 +86,9 @@ func (cli *CommandLine) wallet() {
 		}
 		counter++
 		fmt.Println("data: ", data)
-		fmt.Printf("hash: %x\n", block.Hash)
-		pow := Proof(block)
-		fmt.Printf("Proof of Work: %s\n", strconv.FormatBool(pow.Validate()))
+		fmt.Printf("block hash: %x\n", block.Hash)
+		// pow := Proof(block)
+		// fmt.Printf("Proof of Work: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()
 		// This works because the Genesis block has no PrevHash to point to.
 		if len(block.Prev) == 0 {

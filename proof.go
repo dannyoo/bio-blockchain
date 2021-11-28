@@ -65,7 +65,7 @@ func (proof *ProofOfWork) Compare() (int, []byte) {
 		data := proof.InitData(nonce)
 		hash = sha256.Sum256(data)
 
-		fmt.Printf("\r%x", hash)
+		// fmt.Printf("\r%x", hash)
 		hugeInt.SetBytes(hash[:])
 
 		if hugeInt.Cmp(proof.Goal) == -1 {

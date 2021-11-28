@@ -85,6 +85,8 @@ func (chain *BlockChain) AddBlock(data string) {
 		return err
 	})
 	ErrorHandle(err)
+	fmt.Println("Added Block!")
+	fmt.Printf("Block Hash : %x\n", newBlock.Hash)
 }
 
 func (chain *BlockChain) Iteration() *BlockChainIterator {

@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
-	"encoding/gob"
 	"encoding/pem"
 	"fmt"
 	"log"
@@ -41,26 +40,6 @@ func saveToFile() {
 
 	// var publickey *rsa.PublicKey
 	publickey := &privatekey.PublicKey
-
-	// save private and public key separately
-	privatekeyfile, err := os.Create("private.key")
-	if err != nil {
-		ErrorHandle(err)
-		os.Exit(1)
-	}
-	privatekeyencoder := gob.NewEncoder(privatekeyfile)
-	privatekeyencoder.Encode(privatekey)
-	privatekeyfile.Close()
-
-	publickeyfile, err := os.Create("public.key")
-	if err != nil {
-		ErrorHandle(err)
-		os.Exit(1)
-	}
-
-	publickeyencoder := gob.NewEncoder(publickeyfile)
-	publickeyencoder.Encode(publickey)
-	publickeyfile.Close()
 
 	// save PEM file
 	pemfile, err := os.Create("private.pem")
