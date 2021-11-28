@@ -22,7 +22,7 @@ func (cli *CommandLine) printUsage() {
 	fmt.Println(" add -fasta <FASTA file location> - add a bio data from .fasta file")
 	fmt.Println(" print - prints the blocks in the chain")
 	fmt.Println(" wallet - prints your biological datas")
-	// fmt.Println(" transfer -to <public_key> -fasta <FASTA file location> transfers your biological data")
+	fmt.Println(" transfer -to <public_key.pem file location> -fasta <FASTA file location> - transfers your biological data")
 	fmt.Println(" reset - removes local blockchain database")
 }
 
@@ -39,7 +39,6 @@ func (cli *CommandLine) validateArgs() {
 
 //validateArgs ensures the cli was given valid input
 func (cli *CommandLine) reset() {
-
 	if _, err := os.Stat("./db"); !os.IsNotExist(err) {
 		err := os.RemoveAll("./db")
 		if err != nil {
@@ -50,6 +49,15 @@ func (cli *CommandLine) reset() {
 		os.Exit(0)
 	}
 
+}
+
+func (cli *CommandLine) transfer(publicKeyFile string, fastaFile string) {
+	publicKey := loadPub(publicKeyFile)
+	label, seq := readFasta(fastaFile)
+	fastaData := label + " " + seq
+	encryptedData := RSA_OAEP_Encrypt(fastaData, publicKey)
+	cli.blockchain.AddBlock(encryptedData)
+	fmt.Println("Transfered fasta data to recipient.")
 }
 
 //addBlock allows users to add blocks to the chain via the cli
@@ -116,10 +124,13 @@ func (cli *CommandLine) run() {
 	cli.validateArgs()
 
 	addBlockCmd := flag.NewFlagSet("add", flag.ExitOnError)
-	addBlockData := addBlockCmd.String("fasta", "", "Block data")
+	addBlockData := addBlockCmd.String("fasta", "", "FASTA file")
 	resetCmd := flag.NewFlagSet("reset", flag.ExitOnError)
 	printChainCmd := flag.NewFlagSet("print", flag.ExitOnError)
 	walletCmd := flag.NewFlagSet("wallet", flag.ExitOnError)
+	transferCmd := flag.NewFlagSet("transfer", flag.ExitOnError)
+	publicKeyFile := transferCmd.String("to", "", "Recipient Public Key File")
+	fastaFile := transferCmd.String("fasta", "", "FASTA file data to transfer")
 
 	switch os.Args[1] {
 	case "add":
@@ -136,6 +147,10 @@ func (cli *CommandLine) run() {
 
 	case "wallet":
 		err := walletCmd.Parse(os.Args[2:])
+		ErrorHandle(err)
+	
+	case "transfer":
+		err := transferCmd.Parse(os.Args[2:])
 		ErrorHandle(err)
 
 	default:
@@ -158,5 +173,12 @@ func (cli *CommandLine) run() {
 	}
 	if walletCmd.Parsed() {
 		cli.wallet()
+	}
+	if transferCmd.Parsed() {
+		if *publicKeyFile == ""  || *fastaFile == ""{
+			addBlockCmd.Usage()
+			runtime.Goexit()
+		}
+		cli.transfer(*publicKeyFile, *fastaFile)
 	}
 }

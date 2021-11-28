@@ -16,7 +16,6 @@ import (
 // load private key from file if it doesn't exist create it.
 func loadPrivateKey() rsa.PrivateKey {
 	if _, err := os.Stat("private.pem"); err == nil {
-		// path/to/whatever exists
 		content, err := os.ReadFile("private.pem")
 		if err != nil {
 			log.Fatal(err)
@@ -84,6 +83,25 @@ func saveToFile() {
 	}
 
 	pemfile.Close()
+
+	// save public key to file
+    publicKeyBytes := x509.MarshalPKCS1PublicKey(publickey)
+
+    publicKeyBlock := &pem.Block{
+        Type:  "PUBLIC KEY",
+        Bytes: publicKeyBytes,
+    }
+    publicPem, err := os.Create("public.pem")
+    if err != nil {
+        fmt.Printf("error when create public.pem: %s \n", err)
+        os.Exit(1)
+    }
+    err = pem.Encode(publicPem, publicKeyBlock)
+    if err != nil {
+        fmt.Printf("error when encode public pem: %s \n", err)
+        os.Exit(1)
+    }
+
 }
 
 func RSA_OAEP_Encrypt(secretMessage string, key rsa.PublicKey) string {
@@ -101,3 +119,14 @@ func RSA_OAEP_Decrypt(cipherText string, privKey rsa.PrivateKey) (string, error)
     plaintext, err := rsa.DecryptOAEP(sha256.New(), rng, &privKey, ct, label)
     return string(plaintext), err
 }
+
+func loadPub(filename string) rsa.PublicKey{
+		content, err := os.ReadFile(filename)
+		if err != nil {
+			log.Fatal(err)
+		}
+		block, _ := pem.Decode([]byte(content))
+		key, _ := x509.ParsePKCS1PublicKey(block.Bytes)
+		return *key
+}
+
