@@ -2,3 +2,4 @@ db
 *.fasta
 *.key
 *.pem
+test

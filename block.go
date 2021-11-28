@@ -1,8 +1,8 @@
 package main
 
 import (
-	"encoding/gob"
 	"bytes"
+	"encoding/gob"
 	"log"
 	"time"
 )
@@ -14,7 +14,6 @@ type Block struct {
 	Prev  []byte
 	Nonce int
 }
-
 
 func BuildBlock(data string, Prev []byte) *Block {
 	block := &Block{[]byte{}, []byte(data), Prev, 0}
@@ -29,7 +28,7 @@ func BuildBlock(data string, Prev []byte) *Block {
 
 // the first block doesn't have an address to point back to
 func Init() *Block {
-	return BuildBlock("THE BEGINNING : " + time.Now().Format("2006-01-02 15:04:05"), []byte{})
+	return BuildBlock("THE BEGINNING : "+time.Now().Format("2006-01-02 15:04:05"), []byte{})
 }
 
 func (b *Block) Encode() []byte {

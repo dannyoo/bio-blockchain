@@ -65,13 +65,13 @@ func (cli *CommandLine) addBlock(file string) {
 	label, seq := readFasta(file)
 	fastaData := label + " " + seq
 	encryptedData := RSA_OAEP_Encrypt(fastaData, cli.privateKey.PublicKey)
-    fmt.Println(encryptedData)
+	fmt.Println(encryptedData)
 	cli.blockchain.AddBlock(encryptedData)
 	fmt.Println("Added Block!")
 }
 
 func (cli *CommandLine) wallet() {
-    counter := 0
+	counter := 0
 	iterator := cli.blockchain.Iteration()
 	for {
 		block := iterator.Next()
@@ -86,7 +86,7 @@ func (cli *CommandLine) wallet() {
 				continue
 			}
 		}
-        counter++
+		counter++
 		fmt.Println("data: ", data)
 		fmt.Printf("hash: %x\n", block.Hash)
 		pow := Proof(block)
@@ -97,7 +97,7 @@ func (cli *CommandLine) wallet() {
 			break
 		}
 	}
-    fmt.Printf("You have %d biological data items on the blockchain.\n", counter)
+	fmt.Printf("You have %d biological data items on the blockchain.\n", counter)
 }
 
 //printChain will display the entire contents of the blockchain
@@ -148,7 +148,7 @@ func (cli *CommandLine) run() {
 	case "wallet":
 		err := walletCmd.Parse(os.Args[2:])
 		ErrorHandle(err)
-	
+
 	case "transfer":
 		err := transferCmd.Parse(os.Args[2:])
 		ErrorHandle(err)
@@ -175,7 +175,7 @@ func (cli *CommandLine) run() {
 		cli.wallet()
 	}
 	if transferCmd.Parsed() {
-		if *publicKeyFile == ""  || *fastaFile == ""{
+		if *publicKeyFile == "" || *fastaFile == "" {
 			addBlockCmd.Usage()
 			runtime.Goexit()
 		}

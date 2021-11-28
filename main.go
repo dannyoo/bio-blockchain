@@ -1,10 +1,7 @@
 package main
 
-
-// TODO: Add comments to codebase...
-
 func main() {
-	
+
 	privateKey := loadPrivateKey()
 
 	chain := InitBlockChain()
@@ -12,5 +9,5 @@ func main() {
 
 	cli := CommandLine{chain, &privateKey}
 
-    cli.run()
+	cli.run()
 }

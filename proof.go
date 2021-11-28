@@ -1,15 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"crypto/sha256"
-	"log"
+	"encoding/binary"
 	"fmt"
+	"log"
 	"math"
 	"math/big"
-	"encoding/binary"
-	"bytes"
 )
-
 
 const Difficulty = 12
 
