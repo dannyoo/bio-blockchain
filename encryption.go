@@ -93,3 +93,11 @@ func RSA_OAEP_Encrypt(secretMessage string, key rsa.PublicKey) string {
     ErrorHandle(err)
     return base64.StdEncoding.EncodeToString(ciphertext)
 }
+
+func RSA_OAEP_Decrypt(cipherText string, privKey rsa.PrivateKey) (string, error) {
+    ct, _ := base64.StdEncoding.DecodeString(cipherText)
+    label := []byte("OAEP Encrypted")
+    rng := rand.Reader
+    plaintext, err := rsa.DecryptOAEP(sha256.New(), rng, &privKey, ct, label)
+    return string(plaintext), err
+}
