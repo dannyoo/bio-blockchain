@@ -20,7 +20,7 @@ type ProofOfWork struct {
 // The proof of work to make the blockchain more secure
 func Proof(b *Block) *ProofOfWork {
 	goal := big.NewInt(1)
-	goal.Lsh(goal, uint(256-Difficulty)) //left shift
+	goal.Lsh(goal, uint(256-Difficulty)) //left shift adds zeros to beginning of binary value
 
 	proof := &ProofOfWork{b, goal}
 
