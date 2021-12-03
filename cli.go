@@ -18,7 +18,6 @@ type CommandLine struct {
 //printUsage will display what options are availble to the user
 func (cli *CommandLine) printUsage() {
 	fmt.Println("Usage: ")
-	// fmt.Println(" add -block <BLOCK_DATA> - add a block to the chain")
 	fmt.Println(" add -fasta <FASTA file location> - add a bio data from .fasta file")
 	fmt.Println(" print - prints the blocks in the chain")
 	fmt.Println(" wallet - prints your biological datas")
@@ -30,9 +29,6 @@ func (cli *CommandLine) printUsage() {
 func (cli *CommandLine) validateArgs() {
 	if len(os.Args) < 2 {
 		cli.printUsage()
-		//go exit will exit the application by shutting down the goroutine
-		// if you were to use os.exit you might corrupt the data
-		// runtime.Goexit()
 		os.Exit(0)
 	}
 }
@@ -51,11 +47,12 @@ func (cli *CommandLine) reset() {
 
 }
 
+// transfer fasta data with public key
 func (cli *CommandLine) transfer(publicKeyFile string, fastaFile string) {
-	publicKey := loadPub(publicKeyFile)
+	publicKey := loadPublicKey(publicKeyFile)
 	label, seq := readFasta(fastaFile)
 	fastaData := label + " " + seq
-	encryptedData := RSA_OAEP_Encrypt(fastaData, publicKey)
+	encryptedData := rsaEncrypt(fastaData, publicKey)
 	cli.blockchain.AddBlock(encryptedData)
 	fmt.Println("Transfered fasta data to recipient.")
 }
@@ -64,19 +61,18 @@ func (cli *CommandLine) transfer(publicKeyFile string, fastaFile string) {
 func (cli *CommandLine) addBlock(file string) {
 	label, seq := readFasta(file)
 	fastaData := label + " " + seq
-	encryptedData := RSA_OAEP_Encrypt(fastaData, cli.privateKey.PublicKey)
+	encryptedData := rsaEncrypt(fastaData, cli.privateKey.PublicKey)
 	cli.blockchain.AddBlock(encryptedData)
 }
 
+// lists data that can be decrypted
 func (cli *CommandLine) wallet() {
 	counter := 0
 	iterator := cli.blockchain.Iteration()
 	for {
 		block := iterator.Next()
-		// fmt.Printf("Previous hash: %x\n", block.Prev)
-		// fmt.Printf("data: %s\n", block.Data)
 		// attempt to decrypt
-		data, err := RSA_OAEP_Decrypt(string(block.Data), *cli.privateKey)
+		data, err := rsaDecrypt(string(block.Data), *cli.privateKey)
 		if err != nil {
 			if len(block.Prev) == 0 {
 				break
@@ -87,8 +83,6 @@ func (cli *CommandLine) wallet() {
 		counter++
 		fmt.Println("data: ", data)
 		fmt.Printf("block hash: %x\n", block.Hash)
-		// pow := Proof(block)
-		// fmt.Printf("Proof of Work: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()
 		// This works because the Genesis block has no PrevHash to point to.
 		if len(block.Prev) == 0 {
@@ -178,5 +172,12 @@ func (cli *CommandLine) run() {
 			runtime.Goexit()
 		}
 		cli.transfer(*publicKeyFile, *fastaFile)
+	}
+}
+
+// Handle erros
+func ErrorHandle(err error) {
+	if err != nil {
+		log.Panic(err)
 	}
 }

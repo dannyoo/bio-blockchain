@@ -32,12 +32,12 @@ func InitBlockChain() *BlockChain {
 	err = db.Update(func(txn *badger.Txn) error {
 		// "previousHash" stand for prev hash
 		if _, err := txn.Get([]byte("previousHash")); err == badger.ErrKeyNotFound {
-			fmt.Println("Blockchain not found")
+			fmt.Println("Blockchain not found...")
+			fmt.Println("Beginning a new blockchain...")
 			init := Init()
 			err = txn.Set(init.Hash, init.Encode())
 			ErrorHandle(err)
 			err = txn.Set([]byte("previousHash"), init.Hash)
-			fmt.Println("Began a New Blockchain")
 
 			prevHash = init.Hash
 
@@ -59,6 +59,7 @@ func InitBlockChain() *BlockChain {
 	return &blockchain
 }
 
+// add block to blockchain
 func (chain *BlockChain) AddBlock(data string) {
 	var lastHash []byte
 
@@ -89,12 +90,14 @@ func (chain *BlockChain) AddBlock(data string) {
 	fmt.Printf("Block Hash : %x\n", newBlock.Hash)
 }
 
+// iterate on the blockcahin
 func (chain *BlockChain) Iteration() *BlockChainIterator {
 	iteration := BlockChainIterator{chain.PrevHash, chain.Database}
 
 	return &iteration
 }
 
+// get the next block
 func (iterator *BlockChainIterator) Next() *Block {
 	var block *Block
 

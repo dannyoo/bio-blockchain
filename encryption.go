@@ -11,6 +11,16 @@ import (
 	"log"
 	"os"
 )
+// returns public key from file location
+func loadPublicKey(filename string) rsa.PublicKey {
+	content, err := os.ReadFile(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	block, _ := pem.Decode([]byte(content))
+	key, _ := x509.ParsePKCS1PublicKey(block.Bytes)
+	return *key
+}
 
 // load private key from file if it doesn't exist create it.
 func loadPrivateKey() rsa.PrivateKey {
@@ -28,6 +38,7 @@ func loadPrivateKey() rsa.PrivateKey {
 	}
 }
 
+// saves private and public key to file
 func saveToFile() {
 
 	// generate private key
@@ -38,10 +49,8 @@ func saveToFile() {
 		os.Exit(1)
 	}
 
-	// var publickey *rsa.PublicKey
 	publickey := &privatekey.PublicKey
 
-	// save PEM file
 	pemfile, err := os.Create("private.pem")
 
 	if err != nil {
@@ -49,7 +58,6 @@ func saveToFile() {
 		os.Exit(1)
 	}
 
-	// http://golang.org/pkg/encoding/pem/#Block
 	var pemkey = &pem.Block{
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(privatekey)}
@@ -63,7 +71,8 @@ func saveToFile() {
 
 	pemfile.Close()
 
-	// save public key to file
+	// save public key
+
 	publicKeyBytes := x509.MarshalPKCS1PublicKey(publickey)
 
 	publicKeyBlock := &pem.Block{
@@ -83,7 +92,8 @@ func saveToFile() {
 
 }
 
-func RSA_OAEP_Encrypt(secretMessage string, key rsa.PublicKey) string {
+// encrypts string
+func rsaEncrypt(secretMessage string, key rsa.PublicKey) string {
 	label := []byte("OAEP Encrypted")
 	rng := rand.Reader
 	ciphertext, err := rsa.EncryptOAEP(sha256.New(), rng, &key, []byte(secretMessage), label)
@@ -91,7 +101,8 @@ func RSA_OAEP_Encrypt(secretMessage string, key rsa.PublicKey) string {
 	return base64.StdEncoding.EncodeToString(ciphertext)
 }
 
-func RSA_OAEP_Decrypt(cipherText string, privKey rsa.PrivateKey) (string, error) {
+// decrypts string
+func rsaDecrypt(cipherText string, privKey rsa.PrivateKey) (string, error) {
 	ct, _ := base64.StdEncoding.DecodeString(cipherText)
 	label := []byte("OAEP Encrypted")
 	rng := rand.Reader
@@ -99,12 +110,3 @@ func RSA_OAEP_Decrypt(cipherText string, privKey rsa.PrivateKey) (string, error)
 	return string(plaintext), err
 }
 
-func loadPub(filename string) rsa.PublicKey {
-	content, err := os.ReadFile(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	block, _ := pem.Decode([]byte(content))
-	key, _ := x509.ParsePKCS1PublicKey(block.Bytes)
-	return *key
-}

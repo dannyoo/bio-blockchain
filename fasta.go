@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// Read fasta files
 func readFasta(file string) (label, seq string) {
 	// open file
 	f, err := os.Open(file)
